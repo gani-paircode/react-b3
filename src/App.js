@@ -1,6 +1,7 @@
 import React from 'react';
 import "./styles.css";
 import { Button } from './components/Button/button';
+import MemoisedDemo from './components/memoisedDemo';
 
 const getInitialFormValues = () => ({
   name: '',
@@ -73,7 +74,8 @@ export default function App() {
   return (
     <div className="App">
       <h1>Date : June 16, 2023 </h1>
-      <div className="formContainer">
+      <MemoisedDemo />
+      <div className="formContainer" style={{ display: 'none' }}>
           {id ? <div className='fieldContainer'>
             <label>Emp Id</label>
             <input value={id} type="text" disabled />

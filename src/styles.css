@@ -19,11 +19,11 @@ div.formContainer div.fieldContainer {
   margin-bottom: 1rem;
 }
 
-div.formContainer div.fieldContainer label {
+div.formContainer div.fieldContainer label, #memoisedDataEntryForm label {
   margin-right: 1rem;
 }
 
-div.formContainer input {
+div.formContainer input, #memoisedDataEntryForm input {
   padding: 1rem;
   margin-right: 0.5rem;
 }
