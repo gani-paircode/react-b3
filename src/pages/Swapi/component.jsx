@@ -1,23 +1,22 @@
 import React from "react";
-import People from "./People";
+import { People } from "./People";
+import Button from '../../components/Button';
 
-export default function App() {
+export const Swapi = () => {
   const [peopleId, setPeopleId] = React.useState(0);
 
   return (
-    <div className="App">
+    <div className="formContainer">
+      
       {[0, 1, 2, 3, 4, 5].map((num) => (
-        <button
+        <Button
           onClick={() => {
             setPeopleId(num);
           }}
-          style={{
-            marginRight: "1rem",
-            border: num === peopleId ? "2px solid green" : ""
-          }}
+          key={num}
         >
           {num}
-        </button>
+        </Button>
       ))}
 
       <People id={peopleId} />
