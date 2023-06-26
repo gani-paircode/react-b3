@@ -9,12 +9,12 @@ const getAPICallLoadingState = () => ({
   errorMessage: ""
 });
 
-const getAPICallErrorState = (err) => {
+const getAPICallErrorState = (errorMessage) => {
   // hey log this object and observe what functionalities you are getting
   return {
     isFetching: false,
     data: null,
-    errorMessage: err.message || 'Something went wrong'
+    errorMessage,
   }
 };
 
@@ -34,7 +34,19 @@ export const People = ({ id }) => {
     }
     setRequestState(getAPICallLoadingState());
     fetch(`https://swapi.dev/api/people/${id}`)
-      .then(res => res.json())
+      .then(res => {
+        console.log('res in 1st then ', res);
+        const returnVal = res.json();
+        if(res.status >= 400) {
+          setRequestState(getAPICallErrorState(res.json()));
+          return;
+        }
+        return returnVal;
+      })
+      .then(res => {
+        console.log('res in 2nd then ', res);
+        return res;
+      })
       .then(res => setRequestState(getAPICallSuccessState(res)))
       .catch(err => setRequestState(getAPICallErrorState(err)));
 
