@@ -14,9 +14,12 @@ export default function App() {
   
 
   const addNames2 = useCallback(() => {
-    const newNames = [...names, nameRef.current.value];
-    setNames(newNames);
-    nameRef.current.value = '';
+    setNames((old) => {
+      const value = nameRef.current.value;
+      const newNames = [...old, value];
+      return newNames;
+    });
+    // nameRef.current.value = '';
     nameRef.current.focus();
   }, []);
   
