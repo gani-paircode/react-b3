@@ -3,6 +3,7 @@ import { Link, Routes, Route } from 'react-router-dom';
 import { MemberForm, MembersList, EducationReport, GeoGraphyReport, VolunteerReport } from './TabComponents';
 import './style.css';
 import { TABS, TAB_IDS } from '../../constants/general';
+import NotFound from '../../components/NotFound';
 
 
 export const Community = () => {
@@ -18,6 +19,7 @@ export const Community = () => {
                     <Route path={`/${TAB_IDS.GEO_GRAPHY_REPORT}`} element={<GeoGraphyReport />} />
                     <Route path={`/${TAB_IDS.VIEW_MEMBERS}`} element={<MembersList />} />
                     <Route path={`/${TAB_IDS.VOLUNTEER_REPORT}`} element={<VolunteerReport />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </div>
         </div>
