@@ -1,14 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './style.css';
+import { TABS } from '../../constants/general';
 
 
 export const Community = () => {
     return (
         <div id="CommunityContainer">
             <div className="tabItems">
-                Links will appear here. That will redirect to particualr URL
-                Like URL to add new member, 
-                URL to view member and so on
+                {TABS.map(({ id, text }) => <Link to={`/${id}`}>{text}</Link>)}
             </div>
             <div className="tabComponent">
                 Based on current URL, particular component will be rendered here.
