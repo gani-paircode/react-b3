@@ -2,13 +2,6 @@ import { ACTION_TYPES } from "./reducer";
 
 export const getCommunityActions = (dispatch) => {
 
-    const changeTab = (tabId) => {
-        dispatch({
-            type: ACTION_TYPES.CHANGE_CURRENT_TAB,
-            payload: tabId,
-        });
-    };
-
     const addMember = record => dispatch({
         type: ACTION_TYPES.ADD_RECORD,
         payload: record,
@@ -21,7 +14,6 @@ export const getCommunityActions = (dispatch) => {
         });
 
     return Object.freeze({
-        changeTab,
         addMember,
         deleteMember,
     });

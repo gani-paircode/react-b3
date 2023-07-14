@@ -1,38 +1,21 @@
-import React, { useContext } from 'react';
-import { TABS, TAB_IDS } from '../../constants/general';
-import { MemberForm, MembersList, EducationReport, GeoGraphyReport, VolunteerReport } from './TabComponents';
-import { CommunityContext } from '../../context/context';
+import React from 'react';
 import './style.css';
 
-const TAB_ID_WISE_COMPONENTS = {
-    [TAB_IDS.ADD_MEMBER]: MemberForm,
-    [TAB_IDS.EDUCATION_REPORT]: EducationReport,
-    [TAB_IDS.GEO_GRAPHY_REPORT]: GeoGraphyReport,
-    [TAB_IDS.VOLUNTEER_REPORT]: VolunteerReport,
-    [TAB_IDS.VIEW_MEMBERS]: MembersList,
-};
 
 export const Community = () => {
-    const { state, communityActions } = useContext(CommunityContext);
-    const { tabId } = state;
-    const ComponentToRender = TAB_ID_WISE_COMPONENTS[tabId];
-
     return (
         <div id="CommunityContainer">
             <div className="tabItems">
-                {TABS.map(({ id, text }) => {
-                    return (
-                        <div
-                            onClick={(e) => communityActions.changeTab(id)}
-                            key={id}
-                            className={`tabItem ${tabId === id ? 'activeItab' : ''}`}
-                        >
-                            {text}
-                        </div>);
-                })}
+                Links will appear here. That will redirect to particualr URL
+                Like URL to add new member, 
+                URL to view member and so on
             </div>
             <div className="tabComponent">
-                <ComponentToRender />
+                Based on current URL, particular component will be rendered here.
+                Like on the URL of add new member, MembersForm component will be rendered
+                On URL of view members, MembersList component will be rendered
+                <p>😌 Keep calm & trust react router</p>
+                
             </div>
         </div>
     )
