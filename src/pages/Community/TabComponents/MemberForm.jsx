@@ -3,9 +3,10 @@ import { getInitialFormValues } from '../../../context/reducer';
 import { EDUCATION, INTEREST_CONTRIBUTION, TAB_IDS } from '../../../constants/general';
 import Button from '../../../components/Button';
 import { CommunityContext } from '../../../context/context';
+import { useNavigate } from 'react-router-dom';
 
 export const MemberForm = () => {
-
+    const navigate = useNavigate();
     const { communityActions } = useContext(CommunityContext);
 
     const [record, setRecord] = React.useState(getInitialFormValues());
@@ -30,6 +31,8 @@ export const MemberForm = () => {
             }
         communityActions.addMember(record);
         alert('Record added successfully');
+        // navigate(TAB_IDS.VIEW_MEMBERS); This will navigate to current route + TAB_IDS.VIEW_MEMBERS
+        navigate(`/${TAB_IDS.VIEW_MEMBERS}`);
     }
 
     return (
