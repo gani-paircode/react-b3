@@ -3,5 +3,6 @@ import { EducationReport } from './EducationReport';
 import { GeoGraphyReport } from './GeoGraphyReport';
 import { VolunteerReport } from './VolunteerReport';
 import { MembersList } from './MembersList';
+import { Landing } from './Landing';
 
-export { MemberForm, MembersList, EducationReport, GeoGraphyReport, VolunteerReport };
+export { MemberForm, MembersList, EducationReport, GeoGraphyReport, VolunteerReport, Landing };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Routes, Route } from 'react-router-dom';
-import { MemberForm, MembersList, EducationReport, GeoGraphyReport, VolunteerReport } from './TabComponents';
+import { MemberForm, MembersList, EducationReport, GeoGraphyReport, VolunteerReport, Landing } from './TabComponents';
 import './style.css';
 import { TABS, TAB_IDS } from '../../constants/general';
 import NotFound from '../../components/NotFound';
@@ -14,6 +14,7 @@ export const Community = () => {
             </div>
             <div className="tabComponent">
                 <Routes>
+                    <Route path="/" element={<Landing />} />
                     <Route path={`/${TAB_IDS.ADD_MEMBER}`} element={<MemberForm />} />
                     <Route path={`/${TAB_IDS.EDUCATION_REPORT}`} element={<EducationReport />} />
                     <Route path={`/${TAB_IDS.GEO_GRAPHY_REPORT}`} element={<GeoGraphyReport />} />
