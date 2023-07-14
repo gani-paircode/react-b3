@@ -31,8 +31,8 @@ export const MemberForm = () => {
             }
         communityActions.addMember(record);
         alert('Record added successfully');
-        // navigate(TAB_IDS.VIEW_MEMBERS); This will navigate to current route + TAB_IDS.VIEW_MEMBERS
-        navigate(`/${TAB_IDS.VIEW_MEMBERS}`);
+        // navigate(TAB_IDS.MEMBERS); This will navigate to current route + TAB_IDS.MEMBERS
+        navigate(`/${TAB_IDS.MEMBERS}`);
     }
 
     return (

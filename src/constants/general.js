@@ -64,8 +64,8 @@ export const INTEREST_TO_TEXT = INTEREST_CONTRIBUTION.reduce((acc, obj) => { acc
 
 
 export const TAB_IDS = {
-    'ADD_MEMBER': 'add-member',
-    'VIEW_MEMBERS': 'view-members',
+    'ADD_MEMBER': 'members/add',
+    'MEMBERS': 'members',
     'EDUCATION_REPORT': 'education-report',
     'VOLUNTEER_REPORT': 'volunteer-report',
     'GEO_GRAPHY_REPORT': 'geo-graphy-report',
@@ -77,7 +77,7 @@ export const TABS = [
         text: 'Add New Member'
     },
     {
-        id: TAB_IDS.VIEW_MEMBERS,
+        id: TAB_IDS.MEMBERS,
         text: 'View Members'
     },
     {
