@@ -64,11 +64,11 @@ export const INTEREST_TO_TEXT = INTEREST_CONTRIBUTION.reduce((acc, obj) => { acc
 
 
 export const TAB_IDS = {
-    'ADD_MEMBER': 'ADD_MEMBER',
-    'VIEW_MEMBERS': 'VIEW_MEMBERS',
-    'EDUCATION_REPORT': 'EDUCATION_REPORT',
-    'VOLUNTEER_REPORT': 'VOLUNTEER_REPORT',
-    'GEO_GRAPHY_REPORT': 'GEO_GRAPHY_REPORT',
+    'ADD_MEMBER': 'add-member',
+    'VIEW_MEMBERS': 'view-members',
+    'EDUCATION_REPORT': 'education-report',
+    'VOLUNTEER_REPORT': 'volunteer-report',
+    'GEO_GRAPHY_REPORT': 'geo-graphy-report',
 };
 
 export const TABS = [

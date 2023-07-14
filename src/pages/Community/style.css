@@ -10,24 +10,26 @@
 }
 
 
-#CommunityContainer .tabItems .tabItem {
-    border: 2px solid black;
-    padding: 1rem;
+#CommunityContainer .tabItems a {
+    border: 1px solid black;
+    padding: 0.5rem;
     cursor: pointer;
-    width: 12rem;
+    width: 10rem;
+    text-decoration: none;
+    text-align: center;
 }
 
-#CommunityContainer .tabItems .tabItem:hover {
+#CommunityContainer .tabItems a:hover {
     color: gray;
 }
 
-#CommunityContainer div.tabItems div.activeItab {
+#CommunityContainer div.tabItems a.activeTab {
     background-color: navy;
     color: white;
     border-color: tomato;
 }
 
-#CommunityContainer div.tabItems div.activeItab:hover {
+#CommunityContainer div.tabItems a.activeTab:hover {
     color: wheat;
 }
 
