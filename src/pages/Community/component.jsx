@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Routes, Route } from 'react-router-dom';
+import { MemberForm, MembersList, EducationReport, GeoGraphyReport, VolunteerReport } from './TabComponents';
 import './style.css';
-import { TABS } from '../../constants/general';
+import { TABS, TAB_IDS } from '../../constants/general';
 
 
 export const Community = () => {
@@ -11,11 +12,13 @@ export const Community = () => {
                 {TABS.map(({ id, text }) => <Link to={`/${id}`}>{text}</Link>)}
             </div>
             <div className="tabComponent">
-                Based on current URL, particular component will be rendered here.
-                Like on the URL of add new member, MembersForm component will be rendered
-                On URL of view members, MembersList component will be rendered
-                <p>😌 Keep calm & trust react router</p>
-                
+                <Routes>
+                    <Route path={`/${TAB_IDS.ADD_MEMBER}`} element={<MemberForm />} />
+                    <Route path={`/${TAB_IDS.EDUCATION_REPORT}`} element={<EducationReport />} />
+                    <Route path={`/${TAB_IDS.GEO_GRAPHY_REPORT}`} element={<GeoGraphyReport />} />
+                    <Route path={`/${TAB_IDS.VIEW_MEMBERS}`} element={<MembersList />} />
+                    <Route path={`/${TAB_IDS.VOLUNTEER_REPORT}`} element={<VolunteerReport />} />
+                </Routes>
             </div>
         </div>
     )
