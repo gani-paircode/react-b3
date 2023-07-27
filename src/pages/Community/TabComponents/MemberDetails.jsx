@@ -12,7 +12,14 @@ export const MemberDetails = () => {
             ...getAuthHeaders(),
             }
         })
-        .then(res => res.json())
+        .then(r => {
+            console.log(' r in 1st then ', r);
+            if (r.status >= 200 && r.status <= 299) {
+                return r.json();
+            } else {
+                throw ('Something went wrong');
+            }
+          }  )
         .then(res => {
             console.log('person is  ', res);
             setPerson(res);

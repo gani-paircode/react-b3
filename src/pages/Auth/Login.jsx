@@ -30,7 +30,17 @@ export const Login = () => {
       };
   
       fetch(`https://t1m-addressbook-service.onrender.com/login/v1`, requestOptions)
-        .then(response => response.json())
+        .then(r => 
+          
+          {
+            console.log(' r in 1st then ', r);
+            if (r.status >= 200 && r.status <= 299) {
+                return r.json();
+            } else {
+                throw ('Something went wrong');
+            }
+          }  
+        )
         .then(r => {
           console.log('login response ', r);
           setAuthHeaders(r.phoneNumber, r.loginToken);
