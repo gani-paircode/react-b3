@@ -35,7 +35,7 @@ export const Login = () => {
           console.log('login response ', r);
           setAuthHeaders(r.phoneNumber, r.loginToken);
           navigate(`/${TAB_IDS.MEMBERS}`);
-          window.location.reload(); // This is hack.. need to do bcz there is no centralised state.. Fix this
+          window.location.href = '/'; // This is hack.. need to do bcz there is no centralised state.. Fix this
         })
         .catch(error => {
             // handle error by your self

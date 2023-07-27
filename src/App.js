@@ -73,7 +73,7 @@ const AuthorisedTabs = () => {
     localStorage.removeItem(AUTH_HEADER_NAMES.TOKEN);
     setTimeout(() => {
       navigate('/login');
-      window.location.reload(); // This is hack.. need to do bcz there is no centralised state.. Fix this
+      window.location.href = '/'; // This is hack.. need to do bcz there is no centralised state.. Fix this
     }, [250])
   }
   return (
