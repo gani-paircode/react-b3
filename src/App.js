@@ -3,9 +3,9 @@ import "./styles.css";
 import Community from './pages/Community';
 import { Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
 import { Login } from './pages/Auth/Login';
-import { AUTH_HEADER_NAMES, TABS, TAB_IDS } from './constants/general';
+import { TABS, TAB_IDS } from './constants/general';
 import { Landing } from './pages/Community/TabComponents';
-import { getIsLoggedInFlag } from './helpers/auth';
+import { useAppStore } from './store';
 
 export default function App() {
   return (
@@ -36,7 +36,10 @@ const About = () => {
 }
 
 const SignUp = () => {
-  const isLoggedIn = getIsLoggedInFlag();
+  const admin = useAppStore(state => state.data.admin);
+  const isLoggedIn = admin && admin.data;
+  console.log('In SignUp component - admin - ', admin);
+  
   if (isLoggedIn) {
     return <Navigate to={`/${TAB_IDS.MEMBERS}`}/>
   }
@@ -50,7 +53,9 @@ const SignUp = () => {
 
 
 const Header = () => {
-  const isLoggedIn = getIsLoggedInFlag();
+  const admin = useAppStore(state => state.data.admin);
+  const isLoggedIn = admin && admin.data;
+  console.log('In header component - admin - ', admin);
   return (<div className="tabItems">
     {isLoggedIn ?  <AuthorisedTabs />: ''}
     {!isLoggedIn ? <UnAuthorisedTabs /> : ''}
@@ -69,11 +74,9 @@ const UnAuthorisedTabs = () => {
 const AuthorisedTabs = () => {
   const navigate = useNavigate();
   const doLogout = async () => {
-    localStorage.removeItem(AUTH_HEADER_NAMES.PHONE);
-    localStorage.removeItem(AUTH_HEADER_NAMES.TOKEN);
+    // todo - logout action
     setTimeout(() => {
       navigate('/login');
-      window.location.href = '/'; // This is hack.. need to do bcz there is no centralised state.. Fix this
     }, [250])
   }
   return (

@@ -1,58 +1,30 @@
-import { useRef } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import React, { useRef } from "react";
+import { Navigate } from "react-router-dom";
 import { TAB_IDS } from "../../constants/general";
-import { getIsLoggedInFlag, setAuthHeaders } from "../../helpers/auth";
+import { useAppStore } from '../../store';
+import _ from 'lodash';
 
-export const Login = () => {  
+export const Login = () => {
+    const { data, actions } = useAppStore(state => state);
+    const { admin } = data;
+    const { login }= actions;
+
     const idRef = useRef(null);
     const passRef = useRef(null);
-    const navigate = useNavigate();
-    const isLoggedIn = getIsLoggedInFlag();
+    const isLoggedIn = admin && admin.data
 
-    // Todo - If already logged in - then redirect to /members
     // dont show login page.
     if (isLoggedIn) {
       return <Navigate to={`/${TAB_IDS.MEMBERS}`}/>
     }
 
-    const doLogin = () => {
-      var raw = JSON.stringify({
-        "phoneNumber": idRef.current.value,
-        "password": passRef.current.value
-      });
-  
-      var requestOptions = {
-        method: 'POST',
-        headers: {
-          "Content-type": "application/json; charset=UTF-8"
-        },
-        body: raw
-      };
-  
-      fetch(`https://t1m-addressbook-service.onrender.com/login/v1`, requestOptions)
-        .then(r => 
-          
-          {
-            console.log(' r in 1st then ', r);
-            if (r.status >= 200 && r.status <= 299) {
-                return r.json();
-            } else {
-                throw ('Something went wrong');
-            }
-          }  
-        )
-        .then(r => {
-          console.log('login response ', r);
-          setAuthHeaders(r.phoneNumber, r.loginToken);
-          navigate(`/${TAB_IDS.MEMBERS}`);
-          window.location.href = '/'; // This is hack.. need to do bcz there is no centralised state.. Fix this
-        })
-        .catch(error => {
-            // handle error by your self
-            console.log('error', error);
-        });
-    };
-  
+    const handleSubmit = React.useCallback(() => {
+      login(idRef.current.value, passRef.current.value);
+    }, [login]);
+
+    const isFetching = _.get(admin, 'isFetching', false);
+    const errMsg = _.get(admin, 'errMsg', '');
+
     return (
       <div className="App">
           <div>
@@ -61,7 +33,7 @@ export const Login = () => {
             <input ref={passRef} type='password' placeholder='enter password here' />
           </div>
           <br />
-          <button type='button' onClick={doLogin}>Login</button>
+          <button type='button' onClick={handleSubmit}>Login</button>
       </div>
     );
   }
