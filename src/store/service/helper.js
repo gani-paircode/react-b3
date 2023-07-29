@@ -1,4 +1,7 @@
-import { AUTH_HEADER_NAMES } from "../constants/general";
+export const AUTH_HEADER_NAMES = {
+    PHONE: 'x-auth-phone',
+    TOKEN: 'x-auth-token'
+}
 
 export const getAuthHeaders = () => ({
     [AUTH_HEADER_NAMES.PHONE]: localStorage.getItem(AUTH_HEADER_NAMES.PHONE),
@@ -10,6 +13,9 @@ export const setAuthHeaders = (phoneNumber, loginToken) => {
     localStorage.setItem(AUTH_HEADER_NAMES.TOKEN, loginToken)
 };
 
-export const getIsLoggedInFlag = () => {
-    return Boolean(localStorage.getItem(AUTH_HEADER_NAMES.PHONE));
-}
+export const resetAuthHeaders = (phoneNumber, loginToken) => {
+    localStorage.removeItem(AUTH_HEADER_NAMES.PHONE),
+    localStorage.removeItem(AUTH_HEADER_NAMES.TOKEN)
+};
+
+export const getAdminNumberFromLocal = () => localStorage.getItem(AUTH_HEADER_NAMES.PHONE) || '';

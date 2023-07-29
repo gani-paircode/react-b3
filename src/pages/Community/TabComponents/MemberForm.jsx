@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { TAB_IDS } from '../../../constants/general';
 import Button from '../../../components/Button';
-import { useNavigate } from 'react-router-dom';
-import { getAuthHeaders } from '../../../helpers/auth';
+import { Navigate } from 'react-router-dom';
+import { useAppStore } from '../../../store';
 
 export const MemberForm = () => {
-    const navigate = useNavigate();
     const [record, setRecord] = useState({});
-    const {
-        id, name, phone, email, city,
-    } = record;
+    const { id, name, phone, email, city } = record;
+    const { data: { addUser },  actions: { createMember, resetCreateMember } } = useAppStore(state => state);
+    const { isFetching, errMsg, data } = (addUser || {});
 
-    const handleSubmit = (e) => {
+    console.log(addUser);
+    const handleSubmit = async (e) => {
         if (    !record.name ||
                 !record.phone ||
                 !record.city ||
@@ -21,43 +21,27 @@ export const MemberForm = () => {
                 return;
                 /* there are better ways to validate forms, this is just a work around */
             }
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8",
-                    ...getAuthHeaders(),
-                },
-                body: JSON.stringify({
-                    name: record.name,
-                    phoneNumber: [record.phone],
-                    email: record.email,
-                    city: record.city,
-                })
+            const payload = {
+                name: record.name,
+                phoneNumber: [record.phone],
+                email: record.email,
+                city: record.city,
             };
-          
-            fetch(`https://t1m-addressbook-service.onrender.com/users`, requestOptions)
-            .then(r => {
-                console.log(' r in 1st then ', r);
-                if (r.status >= 200 && r.status <= 299) {
-                    return r.json();
-                } else {
-                    throw ('Something went wrong');
-                }
-                
-                
-            })
-            .then(r => {
-                console.log(' r in 2nd then ', r);
-                navigate(`/${TAB_IDS.MEMBERS}`)
-            })
-            .catch(error => {
-                // handle error by your self
-                console.log('error ->> ', error);
-            });
+            createMember(payload);            
     }
 
+    React.useEffect(() => {
+        return resetCreateMember;
+    }, []);
+
+    if (data) {
+        return <Navigate to={`/${TAB_IDS.MEMBERS}`}/>
+    }
     return (
         <div className="formContainer">
+            {isFetching ? <h2>Wait....</h2> : ''}
+            {errMsg ? <div className='errMsg'>{} </div> : ''}
+            {data && data.id ? <h3>Member added successfully</h3> : '' }
             {id ? <div className='fieldContainer'>
                 <label>Id : {id}</label>
             </div> : null}
@@ -94,7 +78,7 @@ export const MemberForm = () => {
             </div>
            
             <div>
-                <Button type="submit" variant="success" onClick={handleSubmit} >
+                <Button disabled={!!isFetching} type="submit" variant="success" onClick={handleSubmit} >
                     {id ? 'Update' : 'Add'}
                 </Button>
             </div>

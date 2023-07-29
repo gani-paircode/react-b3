@@ -1,50 +1,30 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Button } from '../../../components/Button/button';
 import { useNavigate } from 'react-router-dom';
 import { getMemberDetailsRoute } from '../helper';
-import { getAuthHeaders } from '../../../helpers/auth';
+import { useAppStore } from '../../../store';
 
 export const MembersList = () => {
-    const [records, setRecords] = useState([]);
     const fetchRef = useRef(true);
     const navigate = useNavigate();
-    const doFetchUsers = () => {
-        setRecords([]);
-        fetch("https://t1m-addressbook-service.onrender.com/users", {
-          headers: {
-            ...getAuthHeaders(),
-          }
-        })
-          .then(r => 
-            
-            {
-                console.log(' r in 1st then ', r);
-                if (r.status >= 200 && r.status <= 299) {
-                    return r.json();
-                } else {
-                    throw ('Something went wrong');
-                }
-              }  
-            )
-          .then(res => {
-            console.log('all users are  ', res);
-            setRecords(res);
-          })
-          .catch(e => {
-            console.log('Something went wrong', e);
-          })
-      }
+    const { data: { members }, actions: { getMembers } } = useAppStore(state => state);
+
     React.useEffect(() => {
         /* in dev env, effect runs twice.. preventing it to once using ref */
         if (fetchRef.current) {
-            doFetchUsers();
+            getMembers();
             fetchRef.current = false;
         }
     }, []);
-    
+    const { isFetching, errMsg, data } = (members || {});
+
     return (
         <div id="viewMembers">
-            <button onClick={doFetchUsers}>Refresh</button>
+            {errMsg ? <div className='errMsg'>
+                Something went wrong while Fetching data. Please click on follwing button to get data.
+            </div> : ''}
+            <button disabled={isFetching} onClick={getMembers}>Refresh</button>
+
             <table>
                 <thead>
                     <tr>
@@ -53,14 +33,15 @@ export const MembersList = () => {
                         <td>Phone</td>
                         <td>City</td>
                         <td>Email</td>
-                        {/* <td>Education</td> */}
-                        {/* <td>Interests</td> */}
                         <td>Actions</td>
                     </tr>
                 </thead>
                 <tbody>
+                { isFetching ? <tr>
+                    <td colSpan={6}> Fetching Data.... Please Wait..... </td>
+                </tr> : ''}
                 {
-                    records.map( ({ id, name, phoneNumber, city, email }, index) => {
+                    (data || []).map( ({ id, name, phoneNumber, city, email }, index) => {
                         return (
                             <tr key={id}>
                                 <td>{index + 1}</td>
@@ -68,12 +49,6 @@ export const MembersList = () => {
                                 <td><PhoneNumbers numbers={phoneNumber} /></td>
                                 <td>{city}</td>
                                 <td>{email}</td>
-                                {/* <td>{EDU_TO_TEXT[education]}</td> */}
-                                {/* <td>
-                                    {
-                                        interests.map((interestId) => <div className="interestItem" key={interestId}>{INTEREST_TO_TEXT[interestId]}</div> )
-                                    }
-                                </td> */}
                                 <td>
                                     <Button
                                         variant="normal"

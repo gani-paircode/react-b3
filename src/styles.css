@@ -39,3 +39,8 @@ table, td, tr, th {
 th, td {
   padding: 1rem;
 }
+
+.errMsg {
+  padding: .5rem;
+  background: #f5eae8;
+}

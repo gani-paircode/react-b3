@@ -1,43 +1,34 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
-import { getAuthHeaders } from '../../../helpers/auth';
+import { useAppStore } from '../../../store';
 
 export const MemberDetails = () => {
-    const [person, setPerson] = useState({})
     const { memberId } = useParams();
-
-    const doFetchUserById = (id) => {
-        fetch(`https://t1m-addressbook-service.onrender.com/users/${id}`, {
-            headers: {
-            ...getAuthHeaders(),
-            }
-        })
-        .then(r => {
-            console.log(' r in 1st then ', r);
-            if (r.status >= 200 && r.status <= 299) {
-                return r.json();
-            } else {
-                throw ('Something went wrong');
-            }
-          }  )
-        .then(res => {
-            console.log('person is  ', res);
-            setPerson(res);
-        })
-        .catch(e => {
-            console.log('Something went wrong', e);
-        })
-    }
+    const { data: { membersById } , actions: { fetchMemberById } } = useAppStore(state => state)
+    const member = membersById[memberId];
 
     React.useEffect(() => {
-        doFetchUserById(memberId)
-    }, [memberId]);
+        fetchMemberById(memberId)
+    }, [fetchMemberById]);
     
-    console.log('person ', person)
+    const { isFetching, errMsg, data } = (member || {});
+
     return (
         <div>
             <h3>Viewing Details of member id - {memberId}</h3>
-            {JSON.stringify(person, "", 2)}
+            {isFetching ? <h3>Fetching.....</h3> : ''}
+            {errMsg ? <div>
+                <div className='errMsg'>{errMsg}. Please click following button to retry</div>
+            </div> : ''}
+            <button
+                disabled={isFetching}
+                onClick={() => fetchMemberById(memberId)}
+            >
+                Fetch Data
+            </button>
+            <br />
+            <br />
+            {data ? JSON.stringify(data, "", 2) : ''}
         </div>
 
     )

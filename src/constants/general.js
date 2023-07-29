@@ -1,7 +1,3 @@
-export const AUTH_HEADER_NAMES = {
-    PHONE: 'x-auth-phone',
-    TOKEN: 'x-auth-token'
-}
 export const EDUCATION = [
     {
         value: 'BELOW_10',
