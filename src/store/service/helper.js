@@ -13,4 +13,9 @@ export const setAuthHeaders = (phoneNumber, loginToken) => {
     localStorage.setItem(AUTH_HEADER_NAMES.TOKEN, loginToken)
 };
 
+export const resetAuthHeaders = (phoneNumber, loginToken) => {
+    localStorage.removeItem(AUTH_HEADER_NAMES.PHONE),
+    localStorage.removeItem(AUTH_HEADER_NAMES.TOKEN)
+};
+
 export const getAdminNumberFromLocal = () => localStorage.getItem(AUTH_HEADER_NAMES.PHONE) || '';

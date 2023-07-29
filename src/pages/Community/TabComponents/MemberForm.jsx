@@ -7,15 +7,11 @@ import { useAppStore } from '../../../store';
 export const MemberForm = () => {
     const [record, setRecord] = useState({});
     const { id, name, phone, email, city } = record;
-    const { data: { addUSer },  actions: { createMember, resetCreateMember } } = useAppStore(state => state);
-    const { isFetching, errMsg, data } = (addUSer || {});
+    const { data: { addUser },  actions: { createMember, resetCreateMember } } = useAppStore(state => state);
+    const { isFetching, errMsg, data } = (addUser || {});
 
-    if (data) {
-        resetCreateMember();
-        return <Navigate to={`/${TAB_IDS.MEMBERS}`}/>
-    }
-
-    const handleSubmit = (e) => {
+    console.log(addUser);
+    const handleSubmit = async (e) => {
         if (    !record.name ||
                 !record.phone ||
                 !record.city ||
@@ -34,10 +30,18 @@ export const MemberForm = () => {
             createMember(payload);            
     }
 
+    React.useEffect(() => {
+        return resetCreateMember;
+    }, []);
+
+    if (data) {
+        return <Navigate to={`/${TAB_IDS.MEMBERS}`}/>
+    }
     return (
         <div className="formContainer">
-            {isFetching ? <h2>Wait....</h2> : ''};
+            {isFetching ? <h2>Wait....</h2> : ''}
             {errMsg ? <div className='errMsg'>{} </div> : ''}
+            {data && data.id ? <h3>Member added successfully</h3> : '' }
             {id ? <div className='fieldContainer'>
                 <label>Id : {id}</label>
             </div> : null}
@@ -74,7 +78,7 @@ export const MemberForm = () => {
             </div>
            
             <div>
-                <Button type="submit" variant="success" onClick={handleSubmit} >
+                <Button disabled={!!isFetching} type="submit" variant="success" onClick={handleSubmit} >
                     {id ? 'Update' : 'Add'}
                 </Button>
             </div>

@@ -55,7 +55,6 @@ const SignUp = () => {
 const Header = () => {
   const admin = useAppStore(state => state.data.admin);
   const isLoggedIn = admin && admin.data;
-  console.log('In header component - admin - ', admin);
   return (<div className="tabItems">
     {isLoggedIn ?  <AuthorisedTabs />: ''}
     {!isLoggedIn ? <UnAuthorisedTabs /> : ''}
@@ -73,16 +72,13 @@ const UnAuthorisedTabs = () => {
 }
 const AuthorisedTabs = () => {
   const navigate = useNavigate();
-  const doLogout = async () => {
-    // todo - logout action
-    setTimeout(() => {
-      navigate('/login');
-    }, [250])
-  }
+  const { logMeOut } = useAppStore(state => state.actions);
+  const { logout } = useAppStore(state => state.data);
+  const { isFetching } = logout || {};
   return (
     <>
-      {TABS.map(({ id, text }) => <Link to={`/${id}`}>{text}</Link>)}
-      <a onClick={doLogout}>Logout</a>
+      {TABS.map(({ id, text }) => <Link key={id} to={`/${id}`}>{text}</Link>)}
+      <a key="logout" disabled={isFetching} onClick={logMeOut}>Logout</a>
     </>
   )
 }

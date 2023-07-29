@@ -8,7 +8,7 @@ export const MemberDetails = () => {
     const member = membersById[memberId];
 
     React.useEffect(() => {
-        doFetchUserById(memberId)
+        fetchMemberById(memberId)
     }, [fetchMemberById]);
     
     const { isFetching, errMsg, data } = (member || {});
@@ -17,7 +17,17 @@ export const MemberDetails = () => {
         <div>
             <h3>Viewing Details of member id - {memberId}</h3>
             {isFetching ? <h3>Fetching.....</h3> : ''}
-            {errMsg ? <div className='errMsg'>{errMsg}</div> : ''}
+            {errMsg ? <div>
+                <div className='errMsg'>{errMsg}. Please click following button to retry</div>
+            </div> : ''}
+            <button
+                disabled={isFetching}
+                onClick={() => fetchMemberById(memberId)}
+            >
+                Fetch Data
+            </button>
+            <br />
+            <br />
             {data ? JSON.stringify(data, "", 2) : ''}
         </div>
 

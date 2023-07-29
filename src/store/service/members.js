@@ -15,9 +15,7 @@ export const fetchUserById = (id) => {
 }
 
 export const createUser = (data) => {
-    return axios.get(`http://localhost:5000/users`, {
-        headers: getAuthHeaders(),
-        method: 'POST',
-        data
+    return axios.post(`http://localhost:5000/users`, data, {
+        headers: getAuthHeaders(),        
     });
 }

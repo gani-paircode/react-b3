@@ -9,7 +9,8 @@ export const useAppStore = create((set) => {
             admin: actions.getAdminData(),
             members: null,
             membersById: {},
-            addUser: null
+            addUser: null,
+            logut: null,
         },
         actions,
     };
