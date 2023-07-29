@@ -8,7 +8,16 @@ export const fetchUsers = () => {
     });
 }
 
+export const fetchUserById = (id) => {
+    return axios.get(`http://localhost:5000/users/${id}`, {
+        headers: getAuthHeaders(),
+    });
+}
+
 export const createUser = (data) => {
-    // base url should not be hardcoded
-    // make post request here
+    return axios.get(`http://localhost:5000/users`, {
+        headers: getAuthHeaders(),
+        method: 'POST',
+        data
+    });
 }
