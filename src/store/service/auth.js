@@ -1,6 +1,7 @@
-import axios from "axios";
+import axios from "axios"; 
+import { API_BASE_URL} from './constants';
 export const doLogin = async (id, password) => {
-    return axios.post("http://localhost:5000/login/v1", {
+    return axios.post(`${API_BASE_URL}/login/v1`, {
         phoneNumber: id,
         password
     });
