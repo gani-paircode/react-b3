@@ -3,6 +3,7 @@ import { Button } from '../../../components/Button/button';
 import { useNavigate } from 'react-router-dom';
 import { getMemberDetailsRoute } from '../helper';
 import { useAppStore } from '../../../store';
+import When from '../../../components/When';
 
 export const MembersList = () => {
     const fetchRef = useRef(true);
@@ -20,53 +21,47 @@ export const MembersList = () => {
 
     return (
         <div id="viewMembers">
-            {errMsg ? <div className='errMsg'>
-                Something went wrong while Fetching data. Please click on follwing button to get data.
-            </div> : ''}
-            <button disabled={isFetching} onClick={getMembers}>Refresh</button>
 
-            <table>
-                <thead>
-                    <tr>
-                        <td>Sr No</td>
-                        <td>Name</td>
-                        <td>Phone</td>
-                        <td>City</td>
-                        <td>Email</td>
-                        <td>Actions</td>
-                    </tr>
-                </thead>
-                <tbody>
-                { isFetching ? <tr>
-                    <td colSpan={6}> Fetching Data.... Please Wait..... </td>
-                </tr> : ''}
-                {
-                    (data || []).map( ({ id, name, phoneNumber, city, email }, index) => {
-                        return (
-                            <tr key={id}>
-                                <td>{index + 1}</td>
-                                <td>{name}</td>
-                                <td><PhoneNumbers numbers={phoneNumber} /></td>
-                                <td>{city}</td>
-                                <td>{email}</td>
-                                <td>
-                                    <Button
-                                        variant="normal"
-                                        onClick={() => navigate(getMemberDetailsRoute(id))}
-                                    >
-                                        View
-                                    </Button>
-                                    <Button variant="danger" onClick={(e) => {
-                                        alert('commin soon')
-                                    }}>Delete</Button>
-                                </td>
-                            </tr>
-                        )
-                    })
-                }
-                </tbody>
-                
-            </table>
+            <When isLoading={isFetching} errMsg={errMsg} retry={getMembers}>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Sr No</td>
+                            <td>Name</td>
+                            <td>Phone</td>
+                            <td>City</td>
+                            <td>Email</td>
+                            <td>Actions</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {
+                        (data || []).map( ({ id, name, phoneNumber, city, email }, index) => {
+                            return (
+                                <tr key={id}>
+                                    <td>{index + 1}</td>
+                                    <td>{name}</td>
+                                    <td><PhoneNumbers numbers={phoneNumber} /></td>
+                                    <td>{city}</td>
+                                    <td>{email}</td>
+                                    <td>
+                                        <Button
+                                            variant="normal"
+                                            onClick={() => navigate(getMemberDetailsRoute(id))}
+                                        >
+                                            View
+                                        </Button>
+                                        <Button variant="danger" onClick={(e) => {
+                                            alert('commin soon')
+                                        }}>Delete</Button>
+                                    </td>
+                                </tr>
+                            )
+                        })
+                    }
+                    </tbody>
+                </table>
+            </When>
         </div>  
     );
 }
