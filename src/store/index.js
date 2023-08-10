@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getActions } from "./actions";
+import { getActions } from "./swapiActions";
 
 
 export const useAppStore = create((set) => {
@@ -8,6 +8,7 @@ export const useAppStore = create((set) => {
         data: {
             people: getInitialState4Resource(),
             vehicles: getInitialState4Resource(),
+            species: getInitialState4Resource(),
             resourcesById: {
                 
             },

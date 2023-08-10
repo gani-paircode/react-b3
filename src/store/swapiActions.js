@@ -7,6 +7,9 @@ function getResourceName (url = '') {
             return 'people'
         case url.includes('vehicles'):
             return 'vehicles'
+        case url.includes('species'):
+            return 'species'
+            
         default:
             return '';
     }
@@ -42,17 +45,26 @@ function getUniqResourceIdsFromRecords(records) {
 }
 
 export const getActions = (set) => {
-    const fetchById = async (dataUrl) => {
+    const fetchInstance = async (dataUrl) => {
 
     }
 
-    const fetchData = async (dataUrl) => {
-        const resourceName = getResourceName(dataUrl);
+    const fetchList = async (resourceName, page) => {
+        let dataUrl = '';
+        if (page) {
+            dataUrl = page;
+        } else {
+            dataUrl = `https://swapi.dev/api/${resourceName}/?page=1`;
+        }
+        
         try {
             set((oldState) => {
                 const data = { ...oldState.data };
-                data[resourceName].req = getLoadingState();
-                const newState = { ...oldState, data }
+                const resource = { ...data[resourceName] };
+                resource.req = getLoadingState();
+                data[resourceName] = resource;
+                const newState = { ...oldState, data };
+                console.log('new state b4 loading', newState);
                 return newState;
             });
             const { data: response } = await axios.get(dataUrl);
@@ -60,10 +72,12 @@ export const getActions = (set) => {
                 const data = { ...oldState.data };
                 const resource = { ...data[resourceName] };
                 resource.req = getSuccessState();
-                resource.records = resource.records.push(...response.results);
+                resource.records = resource.records.concat(response.results);
                 resource.next = response.next;
                 data[resourceName] = resource;
                 
+                console.log('resource.records ', resource.records);
+                console.log('response.results ', response.results);
                 resource.records.forEach((rec, index) => {
                     data.resourcesById = {
                         ...data.resourcesById,
@@ -78,14 +92,21 @@ export const getActions = (set) => {
                 });
 
                 const newState = { ...oldState, data }
+                console.log('new state b4 loading', newState);
+
                 return newState;
             });
         } catch (error) {
-            const msg = getAxiosErrorMessage(error, 'Something went wrong while creating member');
+            console.log('error ', error);
+            const msg = getAxiosErrorMessage(error, `Something went wrong while fetching list of ${resourceName}`);
             set((oldState) => {
                 const data = { ...oldState.data };
-                data.addUser = getErrorState(msg);
+                const resource = { ...data[resourceName] };
+                resource.req = getErrorState(msg);
+                data[resourceName] = resource;
                 const newState = { ...oldState, data }
+                console.log('new state b4 loading', newState);
+
                 return newState;
             });
         }
@@ -93,8 +114,8 @@ export const getActions = (set) => {
 
 
     return {
-        fetchData,
-        fetchById
+        fetchList,
+        fetchInstance
     }
 }
 
