@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import "./styles.css";
 import { Routes, Route, Link, useParams } from 'react-router-dom';
 import When from './components/When';
@@ -12,6 +12,9 @@ export default function App() {
           <Link to="/people">People</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           <Link to="/vehicles">Vehicles</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           <Link to="/species">Species</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <Link to="/films">Films</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <Link to="/starships">Starships</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <Link to="/planets">Planets</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         </div>
         <div className="tabComponent">
           <Routes>
@@ -57,11 +60,95 @@ const ResourceList = () => {
       </When> 
       <br />
       <br />
-      <ol>
-      {
-        records.map((rec, index) => <li key={rec.name + index}>{rec.name}</li>)
+      <table style={{ width: '80vw'}}>
+        <thead>
+          <tr>
+            <th>Sr No</th>
+            <th>Details</th>
+            <th>Other Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            records.map((rec, index) => <ResourceRow resourceName={resource} key={rec.name + index} resource={rec} srNo={index+1} />)
+          }
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+const InfoKeysByResourceName = {
+  films: ['title', 'director'],
+  people: ['name', 'height', 'birth_year'],
+  species: ['name', 'language'],
+};
+
+/* Proptype to be added by students */
+const ResourceRow = ({ resource, srNo, resourceName }) => {
+
+  return (<tr>
+    <td>{srNo}</td>
+    <td><pre>{JSON.stringify(resource, "", 2)}</pre></td>
+    <td><OtherDataList resource={resource} /></td>
+  </tr>)
+}
+
+function getResourceIdFromUrl (url = '') {
+  const parts = url.split("/");
+  return parts[parts.length - 2];
+}
+
+const OtherDataItem = ({ url }) => {
+  const resourcesById = useAppStore(state => state.data.resourcesById);
+  const fetchInstance = useAppStore(state => state.actions.fetchInstance)
+  const urlData = resourcesById[url];
+  const id = getResourceIdFromUrl(url);
+
+  if (!urlData) {
+    return (<div> :( &nbsp;&nbsp;&nbsp; {id}</div>);
+  }
+  const retry = () => fetchInstance(url, true);
+  return (
+    <div>
+      { urlData.isFetching ? <div>Loading !! &nbsp;&nbsp;&nbsp; {id}</div> : null}
+      { urlData.errMsg ? <div style={{ color: 'red' }}>
+          {urlData.errMsg} &nbsp;&nbsp;&nbsp; <span onClick={retry}>Retry</span> &nbsp;&nbsp; {id} </div> : null}
+      {!urlData.isFetching && !urlData.errMsg && urlData.data ? 
+        (<div> { urlData.data['name'] || urlData.data['title'] } &nbsp;&nbsp;&nbsp; {id}</div>)
+        : null
       }
-      </ol>
+
+    </div>
+  )
+}
+
+const OtherDataList = ({ resource }) => {
+  const myMap = [
+    { key: 'films', title: 'Films' },
+    { key: 'people', title: 'People' },
+    { key: 'species', title: 'Species' },
+    { key: 'vehicles', title: 'Vehicles' },
+    { key: 'starships', title: 'Starships' },
+    { key: 'pilots', title: 'Pilots' }
+  ];
+
+  const filteredKeys = myMap.filter(({ key }) => resource[key] !== undefined);
+  console.log("filtered keyus" , filteredKeys);
+  return (
+    <div>
+      {
+        filteredKeys.map(({ title, key }) => {
+          return (<div key={key} className='otherDataItemListContainer'>
+            <h3>{title}</h3>
+            <ol>
+            {
+              resource[key].map(url => <OtherDataItem key={url} url={url} />)
+            }
+            </ol>
+          </div>)
+        })
+      }
     </div>
   )
 }
@@ -73,3 +160,4 @@ const ResourceInstance = () => {
     </div>
   )
 }
+

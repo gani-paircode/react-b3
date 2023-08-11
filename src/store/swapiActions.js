@@ -1,20 +1,6 @@
 import axios from "axios"; 
 import { getAxiosErrorMessage, getErrorState, getLoadingState, getSuccessState } from "./helpers";
 
-function getResourceName (url = '') {
-    switch (url) {
-        case url.includes('people'):
-            return 'people'
-        case url.includes('vehicles'):
-            return 'vehicles'
-        case url.includes('species'):
-            return 'species'
-            
-        default:
-            return '';
-    }
-}
-
 function getUniqResourceIdsFromRecords(records) {
     const res = {};
     const addToRes = (urls) => {
@@ -29,9 +15,11 @@ function getUniqResourceIdsFromRecords(records) {
         const species = record.species || [];
         const starships = record.starships || [];
         const planets = record.planets || [];
-        const people = record.characters || [];
+        const people = record.people || [];
         const pilots = record.pilots || [];
+        const characters = record.characters || [];
 
+        addToRes(characters);
         addToRes(vehicles);
         addToRes(films);
         addToRes(species);
@@ -45,8 +33,52 @@ function getUniqResourceIdsFromRecords(records) {
 }
 
 export const getActions = (set) => {
-    const fetchInstance = async (dataUrl) => {
+    const fetchInstance = async (dataUrl, isLoadingRequired = false) => {
+        if (isLoadingRequired) {
+            set((oldState) => {
+                const data = { ...oldState.data };
+                const resourcesById = { ...data.resourcesById };
+                resourcesById[dataUrl] = getLoadingState();
+                data.resourcesById = resourcesById;
+                const newState = { ...oldState, data };
+                console.log('new state b4 loading', newState);
+                return newState;
+            });
+        }
+        const parts = dataUrl.split("/");
+        const resName = parts[parts.length - 3];
+        const id = parts[parts.length - 2];
 
+        try {
+            const { data: resource } = await axios.get(`${dataUrl}?res=${resName}_${id}`);    
+            set((oldState) => {
+                return ({
+                    ...oldState,
+                    data: {
+                        ...oldState.data,
+                        resourcesById: {
+                            ...oldState.data.resourcesById,
+                            [dataUrl]: getSuccessState(resource)
+                        }
+                    }
+                })
+            });
+        } catch (error) {
+            console.log('error ', dataUrl, ' ------------ ',  error);
+            const msg = getAxiosErrorMessage(error, 'Error');
+            set((oldState) => {
+                return ({
+                    ...oldState,
+                    data: {
+                        ...oldState.data,
+                        resourcesById: {
+                            ...oldState.data.resourcesById,
+                            [dataUrl]: getErrorState(msg)
+                        }
+                    }
+                })
+            });
+        }
     }
 
     const fetchList = async (resourceName, page) => {
@@ -68,6 +100,7 @@ export const getActions = (set) => {
                 return newState;
             });
             const { data: response } = await axios.get(dataUrl);
+            const urls = [];
             set((oldState) => {
                 const data = { ...oldState.data };
                 const resource = { ...data[resourceName] };
@@ -88,7 +121,10 @@ export const getActions = (set) => {
                 const resourceIdURLs = getUniqResourceIdsFromRecords(response.results);
 
                 resourceIdURLs.forEach(url => {
-                    data.resourcesById[url] = data.resourcesById[url] || getLoadingState();
+                    if (data.resourcesById[url] === undefined) {
+                        urls.push(url);
+                        data.resourcesById[url] = getLoadingState();
+                    }
                 });
 
                 const newState = { ...oldState, data }
@@ -96,6 +132,9 @@ export const getActions = (set) => {
 
                 return newState;
             });
+
+            urls.forEach(url => fetchInstance(url, false));
+
         } catch (error) {
             console.log('error ', error);
             const msg = getAxiosErrorMessage(error, `Something went wrong while fetching list of ${resourceName}`);

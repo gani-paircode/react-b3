@@ -9,6 +9,9 @@ export const useAppStore = create((set) => {
             people: getInitialState4Resource(),
             vehicles: getInitialState4Resource(),
             species: getInitialState4Resource(),
+            films: getInitialState4Resource(),
+            starships: getInitialState4Resource(),
+            planets: getInitialState4Resource(),
             resourcesById: {
                 
             },
