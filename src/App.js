@@ -106,13 +106,22 @@ const OtherDataItem = ({ url }) => {
     return (<div> :( &nbsp;&nbsp;&nbsp; {id}</div>);
   }
   const retry = () => fetchInstance(url, true);
+  const { isFetching, errMsg, data } = urlData;
+  const displayText = data?.title || data?.name;
   return (
     <div>
-      {urlData.isFetching ? <div>Loading !! &nbsp;&nbsp;&nbsp; {id}</div> : null}
-      {urlData.errMsg ? <div style={{ color: 'red' }}>
-        {urlData.errMsg} &nbsp;&nbsp;&nbsp; <span onClick={retry}>Retry</span> &nbsp;&nbsp; {id} </div> : null}
-      {!urlData.isFetching && !urlData.errMsg && urlData.data ?
-        (<div> <Link to={`/${resourceName}/${id}`}>{urlData.data['name'] || urlData.data['title']} &nbsp;&nbsp;&nbsp; {id} </Link></div>)
+      {isFetching ? <div>Loading !! &nbsp;&nbsp;&nbsp; {id}</div> : null}
+      {errMsg ? <div style={{ color: 'red' }}>
+        {errMsg} &nbsp;&nbsp;&nbsp; <span onClick={retry}>Retry</span> &nbsp;&nbsp; {id} </div> : null}
+      {!isFetching && !errMsg && data ?
+        (<div>
+            <a
+              style={{ marginRight: '2rem'}}
+              target='_blank'
+              href={`http://images.google.com/images?um=1&hl=en&safe=active&nfpr=1&q=starwars+${resourceName}+${displayText}`}>
+              {displayText}
+            </a>
+            <Link to={`/${resourceName}/${id}`}>{id}</Link></div>)
         : null
       }
 
