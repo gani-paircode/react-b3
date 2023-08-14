@@ -1,36 +1,5 @@
 import axios from "axios"; 
-import { getAxiosErrorMessage, getErrorState, getLoadingState, getSuccessState } from "./helpers";
-
-function getUniqResourceIdsFromRecords(records) {
-    const res = {};
-    const addToRes = (urls) => {
-        urls.forEach(url => {
-            res[url] = url;
-        })
-    };
-
-    records.forEach(record => {
-        const vehicles = record.vehicles || [];
-        const films = record.films || [];
-        const species = record.species || [];
-        const starships = record.starships || [];
-        const planets = record.planets || [];
-        const people = record.people || [];
-        const pilots = record.pilots || [];
-        const characters = record.characters || [];
-
-        addToRes(characters);
-        addToRes(vehicles);
-        addToRes(films);
-        addToRes(species);
-        addToRes(starships);
-        addToRes(planets);
-        addToRes(people);
-        addToRes(pilots);
-    })
-    
-    return Object.keys(res);
-}
+import { getAxiosErrorMessage, getErrorState, getLoadingState, getSuccessState, getUniqResourceIdsFromRecords } from "./helpers";
 
 export const getActions = (set) => {
     const fetchInstance = async (dataUrl, isLoadingRequired = false) => {

@@ -12,3 +12,34 @@ export const getAxiosErrorMessage = (error, defaultMessage) => {
     if (_isString(message)) return message;
     return defaultMessage;
 }
+
+export const getUniqResourceIdsFromRecords = (records) => {
+    const res = {};
+    const addToRes = (urls) => {
+        urls.forEach(url => {
+            res[url] = url;
+        })
+    };
+
+    records.forEach(record => {
+        const vehicles = record.vehicles || [];
+        const films = record.films || [];
+        const species = record.species || [];
+        const starships = record.starships || [];
+        const planets = record.planets || [];
+        const people = record.people || [];
+        const pilots = record.pilots || [];
+        const characters = record.characters || [];
+
+        addToRes(characters);
+        addToRes(vehicles);
+        addToRes(films);
+        addToRes(species);
+        addToRes(starships);
+        addToRes(planets);
+        addToRes(people);
+        addToRes(pilots);
+    })
+    
+    return Object.keys(res);
+}
