@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import "./styles.css";
 import { Routes, Route, Link, useParams } from 'react-router-dom';
 import When from './components/When';
@@ -10,12 +10,12 @@ export default function App() {
     <div className="App">
       <div id="CommunityContainer">
         <div className="tabItems">
-          <Link to="/people">People</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <Link to="/vehicles">Vehicles</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <Link to="/species">Species</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <Link to="/films">Films</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <Link to="/starships">Starships</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <Link to="/planets">Planets</Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <Link to="/people">People</Link>
+          <Link to="/vehicles">Vehicles</Link>
+          <Link to="/species">Species</Link>
+          <Link to="/films">Films</Link>
+          <Link to="/starships">Starships</Link>
+          <Link to="/planets">Planets</Link>
         </div>
         <div className="tabComponent">
           <Routes>
@@ -33,6 +33,18 @@ const ResourceList = () => {
   const { next, records, req } = useAppStore(state => state.data[resource]);
   const { fetchList } = useAppStore(state => state.actions);
   const noMoreRecords = records.length > 0 && Boolean(next) === false;
+  const fetchCountRef = useRef(0);
+  const makeInitialFetch = records.length === 0 && !next;
+
+  useEffect(() => {
+    if (fetchCountRef.current === 0) {
+      // fetchList(resource);
+    }
+    fetchCountRef.current++;
+    return () => {
+      fetchCountRef.current = 0;
+    }
+  }, [resource, makeInitialFetch])
 
   return (
     <div>

@@ -44,3 +44,7 @@ th, td {
   padding: .5rem;
   background: #f5eae8;
 }
+
+.tabItems a {
+  margin-right: 2rem;
+}
