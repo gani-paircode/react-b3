@@ -1,7 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import "./styles.css";
 import { Routes, Route, Link, useParams } from 'react-router-dom';
-import When from './components/When';
 import { useAppStore } from './store';
 import { getUniqResourceIdsFromRecords } from './store/helpers';
 
@@ -19,7 +18,7 @@ export default function App() {
         </div>
         <div className="tabComponent">
           <Routes>
-            <Route path="/:resource" element={<ResourceList />} />
+            <Route path="/:resource" element={<ResourceList />} key={location.pathname} />
             <Route path="/:resource/:id" element={<ResourceInstance key={location.pathname} />} />
           </Routes>
         </div>
@@ -28,61 +27,73 @@ export default function App() {
   );
 }
 
+const RetryAction = ({ message, retry }) => {
+  return (<div>
+    <div className='errMsg'>
+      {errMsg}.
+      Please click following button to retry
+    </div>
+    <button
+      disabled={isLoading}
+      onClick={retry}
+    >
+      Fetch Data
+    </button>
+  </div>)
+}
+
 const ResourceList = () => {
   const { resource } = useParams();
   const { next, records, req } = useAppStore(state => state.data[resource]);
   const { fetchList } = useAppStore(state => state.actions);
   const noMoreRecords = records.length > 0 && Boolean(next) === false;
+  const makeInitialFetch = records.length === 0 && !next && Object.keys(req).length === 0;
   const fetchCountRef = useRef(0);
-  const makeInitialFetch = records.length === 0 && !next;
+
+  const fetchResourceList = React.useCallback(() => {
+    fetchList(resource, next);
+    fetchCountRef.current++;
+  }, [resource, next]);
 
   useEffect(() => {
-    if (fetchCountRef.current === 0) {
-      // fetchList(resource);
+    if (fetchCountRef.current === 0 && makeInitialFetch) {
+      fetchResourceList();
     }
-    fetchCountRef.current++;
-    return () => {
-      fetchCountRef.current = 0;
-    }
-  }, [resource, makeInitialFetch])
+
+  }, [fetchResourceList, makeInitialFetch])
+
+  // useEffect(() => {
+  //   return () => { fetchCountRef.current = 0; };
+  // }, [resource]);
 
   return (
     <div>
-      <button
-        disabled={Boolean(req.isFetching) || noMoreRecords}
-        onClick={() => fetchList(resource, next)}
-      >
-        Fetch {resource}
-      </button>
-      <br />
-      <br />
-      <h3>Resource - {resource}</h3>
-      <h3>Next - {next}</h3>
-      <h3>Records Length - {records.length} - {noMoreRecords ? 'Yeyyy... All records are fetched' : ''}</h3>
-      <h3>Req State - {JSON.stringify(req)}</h3>
-      <When
-        isLoading={Boolean(req.isFetching)}
-        errMsg={req.errMsg || ''}
-        retry={() => fetchList(resource, next)}
-      >
-        <h2>Success</h2>
-      </When>
-      <br />
-      <br />
-      <table style={{ width: '80vw' }}>
-        <thead>
-          <tr>
-            <th>Sr No</th>
-            <th>Details</th>
-            <th>Other Data</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            records.map((rec, index) => <ResourceRow resourceName={resource} key={rec.name + index} resource={rec} srNo={index + 1} />)
-          }
-        </tbody>
-      </table>
+      <h2>Resource - {resource} <br /> Fetch Count = {fetchCountRef.current}</h2>
+      {req.errMsg ? <RetryAction retry={fetchResourceList} message={req.errMsg} /> : ''}
+      <div>
+        <table style={{ width: '80vw' }}>
+          <thead>
+            <tr>
+              <th className='column-sr-no'>Sr No</th>
+              <th className='column-details'>Details</th>
+              <th className='column-other-data'>Other Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              records.map((rec, index) => <ResourceRow resourceName={resource} key={rec.name + index} resource={rec} srNo={index + 1} />)
+            }
+          </tbody>
+        </table>
+        <button
+          disabled={Boolean(req.isFetching) || noMoreRecords}
+          onClick={fetchResourceList}
+        >
+          Fetch {resource}
+        </button>
+      </div>
+
+
     </div>
   )
 }
@@ -95,10 +106,19 @@ const InfoKeysByResourceName = {
 
 /* Proptype to be added by students */
 const ResourceRow = ({ resource, srNo, resourceName }) => {
+  const keys = InfoKeysByResourceName[resourceName] || ['name'];
 
   return (<tr>
     <td>{srNo}</td>
-    <td><pre>{JSON.stringify(resource, "", 2)}</pre></td>
+    <td>
+      <div>
+        <ol>
+          {
+            keys.map(key => <li key={key}> {key}  -  {resource[key]}</li>)
+          }
+        </ol>
+      </div>
+    </td>
     <td><OtherDataList resource={resource} /></td>
   </tr>)
 }
@@ -115,25 +135,25 @@ const OtherDataItem = ({ url }) => {
   const { id, resourceName } = getResourceIdFromUrl(url);
 
   if (!urlData) {
-    return (<div> :( &nbsp;&nbsp;&nbsp; {id}</div>);
+    return (<div className='mr-3'> :( {id}</div>);
   }
   const retry = () => fetchInstance(url, true);
   const { isFetching, errMsg, data } = urlData;
   const displayText = data?.title || data?.name;
   return (
     <div>
-      {isFetching ? <div>Loading !! &nbsp;&nbsp;&nbsp; {id}</div> : null}
+      {isFetching ? <div>Loading !! {id}</div> : null}
       {errMsg ? <div style={{ color: 'red' }}>
-        {errMsg} &nbsp;&nbsp;&nbsp; <span onClick={retry}>Retry</span> &nbsp;&nbsp; {id} </div> : null}
+        {errMsg} <span onClick={retry}>Retry</span> {id} </div> : null}
       {!isFetching && !errMsg && data ?
         (<div>
-            <a
-              style={{ marginRight: '2rem'}}
-              target='_blank'
-              href={`http://images.google.com/images?um=1&hl=en&safe=active&nfpr=1&q=starwars+${resourceName}+${displayText}`}>
-              {displayText}
-            </a>
-            <Link to={`/${resourceName}/${id}`}>{id}</Link></div>)
+          <a
+            className='mr-2'
+            target='_blank'
+            href={`http://images.google.com/images?um=1&hl=en&safe=active&nfpr=1&q=starwars+${resourceName}+${displayText}`}>
+            {displayText}
+          </a>
+          <Link to={`/${resourceName}/${id}`}>{id}</Link></div>)
         : null
       }
 
@@ -181,6 +201,7 @@ const ResourceInstance = () => {
   const url = getResourceInstanceUrl(resource, id);
   const currentResource = resourcesById[url];
   const countRef = useRef(0);
+
   React.useEffect(() => {
     if (countRef.current === 0) {
       if (!currentResource) {
