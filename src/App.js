@@ -184,7 +184,7 @@ const OtherDataList = ({ resource }) => {
     { key: 'characters', title: 'Characters' }
   ];
 
-  const filteredKeys = myMap.filter(({ key }) => resource[key] !== undefined);
+  const filteredKeys = myMap.filter(({ key }) => resource[key] !== undefined && resource[key].length);
 
   return (
     <div>
