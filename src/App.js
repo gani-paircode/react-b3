@@ -18,8 +18,8 @@ export default function App() {
         </div>
         <div className="tabComponent">
           <Routes>
-            <Route path="/:resource" element={<ResourceList />} key={location.pathname} />
-            <Route path="/:resource/:id" element={<ResourceInstance key={location.pathname} />} />
+            <Route path="/:resource" element={<ResourceListWrapper />} />
+            <Route path="/:resource/:id" element={<ResourceInstance />} />
           </Routes>
         </div>
       </div>
@@ -42,6 +42,12 @@ const RetryAction = ({ message, retry }) => {
   </div>)
 }
 
+// https://stackoverflow.com/a/73069241/2132002
+const ResourceListWrapper = () => {
+  const { resource: resourceName } = useParams();
+  return (<ResourceList key={resourceName} />)
+}
+
 const ResourceList = () => {
   const { resource } = useParams();
   const { next, records, req } = useAppStore(state => state.data[resource]);
@@ -62,13 +68,8 @@ const ResourceList = () => {
 
   }, [fetchResourceList, makeInitialFetch])
 
-  // useEffect(() => {
-  //   return () => { fetchCountRef.current = 0; };
-  // }, [resource]);
-
   return (
     <div>
-      <h2>Resource - {resource} <br /> Fetch Count = {fetchCountRef.current}</h2>
       {req.errMsg ? <RetryAction retry={fetchResourceList} message={req.errMsg} /> : ''}
       <div>
         <table style={{ width: '80vw' }}>
