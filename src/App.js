@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import "./styles.css";
-import { Routes, Route, Link, useParams } from 'react-router-dom';
+import { Routes, Route, Link, useParams, useLocation } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import { useAppStore } from './store';
 import When from './components/When';
@@ -24,8 +24,17 @@ export default function App() {
           </Routes>
         </div>
       </div>
+      <ScrollToTop />
     </div>
   );
+}
+
+/* https://dev.to/kunalukey/scroll-to-top-when-route-changes-reactjs-react-router-3bgn */
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 }
 
 const RetryAction = ({ message, retry }) => {
