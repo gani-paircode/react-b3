@@ -10,7 +10,6 @@ export const getActions = (set) => {
                 resourcesById[dataUrl] = getLoadingState();
                 data.resourcesById = resourcesById;
                 const newState = { ...oldState, data };
-                console.log('new state b4 loading', newState);
                 return newState;
             });
         }
@@ -33,7 +32,6 @@ export const getActions = (set) => {
                 })
             });
         } catch (error) {
-            console.log('error ', dataUrl, ' ------------ ',  error);
             const msg = getAxiosErrorMessage(error, 'Error');
             set((oldState) => {
                 return ({
@@ -65,7 +63,6 @@ export const getActions = (set) => {
                 resource.req = getLoadingState();
                 data[resourceName] = resource;
                 const newState = { ...oldState, data };
-                console.log('new state b4 loading', newState);
                 return newState;
             });
             const { data: response } = await axios.get(dataUrl);
@@ -87,7 +84,6 @@ export const getActions = (set) => {
                 return newState;
             });
         } catch (error) {
-            console.log('error ', error);
             const msg = getAxiosErrorMessage(error, `Something went wrong while fetching list of ${resourceName}`);
             set((oldState) => {
                 const data = { ...oldState.data };
@@ -95,7 +91,6 @@ export const getActions = (set) => {
                 resource.req = getErrorState(msg);
                 data[resourceName] = resource;
                 const newState = { ...oldState, data }
-                console.log('new state b4 loading', newState);
 
                 return newState;
             });

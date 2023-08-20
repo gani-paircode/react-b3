@@ -68,3 +68,14 @@ th, td {
 .mr-3{
   margin-right: 3rem;
 }
+
+.otherDataItem {
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  background: #f6f6f6;
+  height: 35px;
+}
+
+.otherDataItem:hover {
+  background: #e4e4e4;
+}

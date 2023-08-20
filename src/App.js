@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import "./styles.css";
 import { Routes, Route, Link, useParams } from 'react-router-dom';
+import { useInView } from 'react-intersection-observer';
 import { useAppStore } from './store';
 import When from './components/When';
 
@@ -128,6 +129,9 @@ function getResourceIdFromUrl(url = '') {
 }
 
 const OtherDataItem = ({ url }) => {
+  const { ref, inView, entry } = useInView({
+    threshold:1
+  });
   const resourcesById = useAppStore(state => state.data.resourcesById);
   const fetchInstance = useAppStore(state => state.actions.fetchInstance);
   const urlData = resourcesById[url];
@@ -136,18 +140,25 @@ const OtherDataItem = ({ url }) => {
   const retry = () => fetchInstance(url, true);
   const { isFetching, errMsg, data } = urlData || {};
   const displayText = data?.title || data?.name;
+
+  useEffect(() => {
+    if (inView && !urlData) {
+      fetchInstance(url, true);
+    }
+  }, [inView, urlData, url]);
+
   return (
-    <div data-test-id={`instance_${resourceName}_${id}`}>
-      {!urlData ? <div>{resourceName} - {id}</div> : null }
+    <div className='otherDataItem' ref={ref} data-test-id={`instance_${resourceName}_${id}`}>
       <When isLoading={isFetching} retry={retry} errMsg={errMsg}>
         <div>
           <a
             className='mr-2'
             target='_blank'
-            href={`http://images.google.com/images?um=1&hl=en&safe=active&nfpr=1&q=star+wars+${resourceName}+${displayText}`}>
+            href={`http://images.google.com/images?um=1&hl=en&safe=active&nfpr=1&q=star+wars+${resourceName}+${displayText}`}
+          >
             {displayText}
           </a>
-          <Link to={`/${resourceName}/${id}`}>{id}</Link></div>)
+          <Link to={`/${resourceName}/${id}`}>{id}</Link></div>
       </When>
     </div>
   )
