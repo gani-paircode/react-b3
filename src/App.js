@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import "./styles.css";
 import { Routes, Route, Link, useParams } from 'react-router-dom';
 import { useAppStore } from './store';
-import { getUniqResourceIdsFromRecords } from './store/helpers';
+import When from './components/When';
 
 export default function App() {
   return (
@@ -93,8 +93,6 @@ const ResourceList = () => {
           Fetch {resource}
         </button>
       </div>
-
-
     </div>
   )
 }
@@ -135,29 +133,22 @@ const OtherDataItem = ({ url }) => {
   const urlData = resourcesById[url];
   const { id, resourceName } = getResourceIdFromUrl(url);
 
-  if (!urlData) {
-    return (<div className='mr-3'> :( {id}</div>);
-  }
   const retry = () => fetchInstance(url, true);
-  const { isFetching, errMsg, data } = urlData;
+  const { isFetching, errMsg, data } = urlData || {};
   const displayText = data?.title || data?.name;
   return (
-    <div>
-      {isFetching ? <div>Loading !! {id}</div> : null}
-      {errMsg ? <div style={{ color: 'red' }}>
-        {errMsg} <span onClick={retry}>Retry</span> {id} </div> : null}
-      {!isFetching && !errMsg && data ?
-        (<div>
+    <div data-test-id={`instance_${resourceName}_${id}`}>
+      {!urlData ? <div>{resourceName} - {id}</div> : null }
+      <When isLoading={isFetching} retry={retry} errMsg={errMsg}>
+        <div>
           <a
             className='mr-2'
             target='_blank'
-            href={`http://images.google.com/images?um=1&hl=en&safe=active&nfpr=1&q=starwars+${resourceName}+${displayText}`}>
+            href={`http://images.google.com/images?um=1&hl=en&safe=active&nfpr=1&q=star+wars+${resourceName}+${displayText}`}>
             {displayText}
           </a>
           <Link to={`/${resourceName}/${id}`}>{id}</Link></div>)
-        : null
-      }
-
+      </When>
     </div>
   )
 }
@@ -213,17 +204,6 @@ const ResourceInstance = () => {
   }, [currentResource]);
 
   const { isFetching, errMsg, data } = currentResource || {};
-
-  React.useEffect(() => {
-    if (data) {
-      const urls = getUniqResourceIdsFromRecords([data]);
-      urls.forEach(url => {
-        if (resourcesById[url] === undefined) {
-          fetchInstance(url, true);
-        }
-      });
-    }
-  }, [data, resourcesById])
 
   return (
     <div>

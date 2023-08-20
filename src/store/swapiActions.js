@@ -1,5 +1,5 @@
 import axios from "axios"; 
-import { getAxiosErrorMessage, getErrorState, getLoadingState, getSuccessState, getUniqResourceIdsFromRecords } from "./helpers";
+import { getAxiosErrorMessage, getErrorState, getLoadingState, getSuccessState } from "./helpers";
 
 export const getActions = (set) => {
     const fetchInstance = async (dataUrl, isLoadingRequired = false) => {
@@ -77,33 +77,15 @@ export const getActions = (set) => {
                 resource.records = resource.records.concat(response.results);
                 resource.next = response.next;
                 data[resourceName] = resource;
-                
-                console.log('resource.records ', resource.records);
-                console.log('response.results ', response.results);
                 resource.records.forEach((rec, index) => {
                     data.resourcesById = {
                         ...data.resourcesById,
                         [`https://swapi.dev/api/${resourceName}/${index+1}/`]: getSuccessState(rec),
                     }
                 })
-                
-                const resourceIdURLs = getUniqResourceIdsFromRecords(response.results);
-
-                resourceIdURLs.forEach(url => {
-                    if (data.resourcesById[url] === undefined) {
-                        urls.push(url);
-                        data.resourcesById[url] = getLoadingState();
-                    }
-                });
-
                 const newState = { ...oldState, data }
-                console.log('new state b4 loading', newState);
-
                 return newState;
             });
-
-            urls.forEach(url => fetchInstance(url, false));
-
         } catch (error) {
             console.log('error ', error);
             const msg = getAxiosErrorMessage(error, `Something went wrong while fetching list of ${resourceName}`);
