@@ -1,30 +1,50 @@
 import React, { useEffect, useMemo, useRef } from 'react';
+import { Container, Navbar, Nav, Row, Col, Table, Button, Spinner, Badge } from 'react-bootstrap';
 import "./styles.css";
-import { Routes, Route, Link, useParams, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useParams, useLocation, NavLink } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import { useAppStore } from './store';
 import When from './components/When';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function App() {
   return (
-    <div className="App">
-      <div id="CommunityContainer">
-        <div className="tabItems">
-          <Link to="/people">People</Link>
-          <Link to="/vehicles">Vehicles</Link>
-          <Link to="/species">Species</Link>
-          <Link to="/films">Films</Link>
-          <Link to="/starships">Starships</Link>
-          <Link to="/planets">Planets</Link>
-        </div>
-        <div className="tabComponent">
-          <Routes>
-            <Route path="/:resource" element={<ResourceListWrapper />} />
-            <Route path="/:resource/:id" element={<ResourceInstance />} />
-          </Routes>
-        </div>
+    <div className="main-content">
+
+      <div className="layout">
+        <Navbar fixed="top" bg="light" expand="lg">
+          <Navbar.Brand href="#">StarWars App</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ml-auto">
+              <Nav.Link as={NavLink} to="/people">People</Nav.Link>
+              <Nav.Link as={NavLink} to="/vehicles">Vehicles</Nav.Link>
+              <Nav.Link as={NavLink} to="/species">Species</Nav.Link>
+              <Nav.Link as={NavLink} to="/films">Films</Nav.Link>
+              <Nav.Link as={NavLink} to="/starships">Starships</Nav.Link>
+              <Nav.Link as={NavLink} to="/planets">Planets</Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
+
+        {/* Main Content */}
+        <Container style={{ marginTop: '4rem'}}>
+          <Row>
+            <Col>
+              <Routes>
+                <Route path="/:resource" element={<ResourceListWrapper />} />
+                <Route path="/:resource/:id" element={<ResourceInstance />} />
+              </Routes>
+            </Col>
+          </Row>
+        </Container>
+
+        {/* Footer */}
+        <footer fixed="bottom" className="footer">
+          <p>&copy; {new Date().getFullYear()} Code By GaniBhai. Copy what you link !!</p>
+        </footer>
+        <ScrollToTop />
       </div>
-      <ScrollToTop />
     </div>
   );
 }
@@ -82,12 +102,12 @@ const ResourceList = () => {
     <div>
       {req.errMsg ? <RetryAction retry={fetchResourceList} message={req.errMsg} /> : ''}
       <div>
-        <table style={{ width: '80vw' }}>
+        <Table striped bordered hover>
           <thead>
             <tr>
-              <th className='column-sr-no'>Sr No</th>
-              <th className='column-details'>Details</th>
-              <th className='column-other-data'>Other Data</th>
+              <th>Sr No</th>
+              <th>Details</th>
+              <th>Other Data</th>
             </tr>
           </thead>
           <tbody>
@@ -95,13 +115,23 @@ const ResourceList = () => {
               records.map((rec, index) => <ResourceRow resourceName={resource} key={rec.name + index} resource={rec} srNo={index + 1} />)
             }
           </tbody>
-        </table>
-        <button
-          disabled={Boolean(req.isFetching) || noMoreRecords}
+        </Table>
+
+        <Button variant="primary" disabled={Boolean(req.isFetching) || noMoreRecords}
           onClick={fetchResourceList}
         >
-          Fetch {resource}
-        </button>
+          {req.isFetching ? (<Spinner
+            as="span"
+            animation="grow"
+            size="sm"
+            role="status"
+            aria-hidden="true"
+          />) : null}
+          {req.isFetching ? '  Fetching ' : 'Fetch '}
+          {resource}
+        </Button>
+
+
       </div>
     </div>
   )
@@ -139,7 +169,7 @@ function getResourceIdFromUrl(url = '') {
 
 const OtherDataItem = ({ url }) => {
   const { ref, inView, entry } = useInView({
-    threshold:1
+    threshold: 1
   });
   const resourcesById = useAppStore(state => state.data.resourcesById);
   const fetchInstance = useAppStore(state => state.actions.fetchInstance);
@@ -159,7 +189,7 @@ const OtherDataItem = ({ url }) => {
   return (
     <div className='otherDataItem' ref={ref} data-test-id={`instance_${resourceName}_${id}`}>
       <When isLoading={isFetching} retry={retry} errMsg={errMsg}>
-        <div>
+          <>
           <a
             className='mr-2'
             target='_blank'
@@ -167,7 +197,8 @@ const OtherDataItem = ({ url }) => {
           >
             {displayText}
           </a>
-          <Link to={`/${resourceName}/${id}`}>{id}</Link></div>
+          <Nav.Link as={NavLink} to={`/${resourceName}/${id}`}>{id}</Nav.Link>
+          </>
       </When>
     </div>
   )
@@ -193,7 +224,7 @@ const OtherDataList = ({ resource }) => {
       {
         filteredKeys.map(({ title, key }) => {
           return (<div key={key} className='otherDataItemListContainer'>
-            <h3>{title}</h3>
+            <Badge bg="dark">{title}</Badge>
             <ol>
               {
                 resource[key].map(url => <OtherDataItem key={url} url={url} />)

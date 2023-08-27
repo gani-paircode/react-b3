@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spinner } from 'react-bootstrap';
 
 // todo - add prop types
 export const When = (props) => {
@@ -6,7 +7,7 @@ export const When = (props) => {
     if (isLoading === undefined && errMsg === undefined) {
         return null
     } else if (isLoading) {
-        return <h3>Fetching.....</h3>;
+        return <Spinner animation='border' size='sm' />
     } else if (errMsg) {
         return (
             <div>
