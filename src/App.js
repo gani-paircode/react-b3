@@ -1,90 +1,277 @@
-import React from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { Container, Navbar, Nav, Row, Col, Table, Button, Spinner, Badge } from 'react-bootstrap';
 import "./styles.css";
-import Community from './pages/Community';
-import { Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
-import { Login } from './pages/Auth/Login';
-import { TABS, TAB_IDS } from './constants/general';
-import { Landing } from './pages/Community/TabComponents';
+import { Routes, Route, Link, useParams, useLocation, NavLink } from 'react-router-dom';
+import { useInView } from 'react-intersection-observer';
 import { useAppStore } from './store';
+import When from './components/When';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function App() {
   return (
-    <div className="App">
-      <div id="CommunityContainer">
-        <Header />
-        <div className="tabComponent">
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/about-us" element={<About />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/*" element={<Community />} />
-          </Routes>
-        </div>
+    <div className="main-content">
+
+      <div className="layout">
+        <Navbar fixed="top" bg="light" expand="lg">
+          <Navbar.Brand href="#">StarWars App</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ml-auto">
+              <Nav.Link as={NavLink} to="/people">People</Nav.Link>
+              <Nav.Link as={NavLink} to="/vehicles">Vehicles</Nav.Link>
+              <Nav.Link as={NavLink} to="/species">Species</Nav.Link>
+              <Nav.Link as={NavLink} to="/films">Films</Nav.Link>
+              <Nav.Link as={NavLink} to="/starships">Starships</Nav.Link>
+              <Nav.Link as={NavLink} to="/planets">Planets</Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
+
+        {/* Main Content */}
+        <Container style={{ marginTop: '4rem'}}>
+          <Row>
+            <Col>
+              <Routes>
+                <Route path="/:resource" element={<ResourceListWrapper />} />
+                <Route path="/:resource/:id" element={<ResourceInstance />} />
+              </Routes>
+            </Col>
+          </Row>
+        </Container>
+
+        {/* Footer */}
+        <footer fixed="bottom" className="footer">
+          <p>&copy; {new Date().getFullYear()} Code By GaniBhai. Copy what you link !!</p>
+        </footer>
+        <ScrollToTop />
       </div>
     </div>
   );
 }
 
-const About = () => {
+/* https://dev.to/kunalukey/scroll-to-top-when-route-changes-reactjs-react-router-3bgn */
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+}
+
+const RetryAction = ({ message, retry }) => {
+  return (<div>
+    <div className='errMsg'>
+      {errMsg}.
+      Please click following button to retry
+    </div>
+    <button
+      disabled={isLoading}
+      onClick={retry}
+    >
+      Fetch Data
+    </button>
+  </div>)
+}
+
+// https://stackoverflow.com/a/73069241/2132002
+const ResourceListWrapper = () => {
+  const { resource: resourceName } = useParams();
+  return (<ResourceList key={resourceName} />)
+}
+
+const ResourceList = () => {
+  const { resource } = useParams();
+  const { next, records, req } = useAppStore(state => state.data[resource]);
+  const { fetchList } = useAppStore(state => state.actions);
+  const noMoreRecords = records.length > 0 && Boolean(next) === false;
+  const makeInitialFetch = records.length === 0 && !next && Object.keys(req).length === 0;
+  const fetchCountRef = useRef(0);
+
+  const fetchResourceList = React.useCallback(() => {
+    fetchList(resource, next);
+    fetchCountRef.current++;
+  }, [resource, next]);
+
+  useEffect(() => {
+    if (fetchCountRef.current === 0 && makeInitialFetch) {
+      fetchResourceList();
+    }
+
+  }, [fetchResourceList, makeInitialFetch])
+
   return (
     <div>
-      <h1>About Us</h1>
-      <section>Hey we are engineers !! Wanna join our gang :) </section>
+      {req.errMsg ? <RetryAction retry={fetchResourceList} message={req.errMsg} /> : ''}
+      <div>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Sr No</th>
+              <th>Details</th>
+              <th>Other Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              records.map((rec, index) => <ResourceRow resourceName={resource} key={rec.name + index} resource={rec} srNo={index + 1} />)
+            }
+          </tbody>
+        </Table>
+
+        <Button variant="primary" disabled={Boolean(req.isFetching) || noMoreRecords}
+          onClick={fetchResourceList}
+        >
+          {req.isFetching ? (<Spinner
+            as="span"
+            animation="grow"
+            size="sm"
+            role="status"
+            aria-hidden="true"
+          />) : null}
+          {req.isFetching ? '  Fetching ' : 'Fetch '}
+          {resource}
+        </Button>
+
+
+      </div>
     </div>
   )
 }
 
-const SignUp = () => {
-  const admin = useAppStore(state => state.data.admin);
-  const isLoggedIn = admin && admin.data;
-  console.log('In SignUp component - admin - ', admin);
-  
-  if (isLoggedIn) {
-    return <Navigate to={`/${TAB_IDS.MEMBERS}`}/>
-  }
+const InfoKeysByResourceName = {
+  films: ['title', 'director'],
+  people: ['name', 'height', 'birth_year'],
+  species: ['name', 'language'],
+};
+
+/* Proptype to be added by students */
+const ResourceRow = ({ resource, srNo, resourceName }) => {
+  const keys = InfoKeysByResourceName[resourceName] || ['name'];
+
+  return (<tr>
+    <td>{srNo}</td>
+    <td>
+      <div>
+        <ol>
+          {
+            keys.map(key => <li key={key}> {key}  -  {resource[key]}</li>)
+          }
+        </ol>
+      </div>
+    </td>
+    <td><OtherDataList resource={resource} /></td>
+  </tr>)
+}
+
+function getResourceIdFromUrl(url = '') {
+  const parts = url.split("/");
+  return { id: parts[parts.length - 2], resourceName: parts[parts.length - 3] };
+}
+
+const OtherDataItem = ({ url }) => {
+  const { ref, inView, entry } = useInView({
+    threshold: 1
+  });
+  const resourcesById = useAppStore(state => state.data.resourcesById);
+  const fetchInstance = useAppStore(state => state.actions.fetchInstance);
+  const urlData = resourcesById[url];
+  const { id, resourceName } = getResourceIdFromUrl(url);
+
+  const retry = () => fetchInstance(url, true);
+  const { isFetching, errMsg, data } = urlData || {};
+  const displayText = data?.title || data?.name;
+
+  useEffect(() => {
+    if (inView && !urlData) {
+      fetchInstance(url, true);
+    }
+  }, [inView, urlData, url]);
+
   return (
-    <div>
-      <h1>Signup</h1>
-      <section>Comming Soon !! </section>
+    <div className='otherDataItem' ref={ref} data-test-id={`instance_${resourceName}_${id}`}>
+      <When isLoading={isFetching} retry={retry} errMsg={errMsg}>
+          <>
+          <a
+            className='mr-2'
+            target='_blank'
+            href={`http://images.google.com/images?um=1&hl=en&safe=active&nfpr=1&q=star+wars+${resourceName}+${displayText}`}
+          >
+            {displayText}
+          </a>
+          <Nav.Link as={NavLink} to={`/${resourceName}/${id}`}>{id}</Nav.Link>
+          </>
+      </When>
     </div>
   )
 }
 
+const OtherDataList = ({ resource }) => {
+  const myMap = [
+    { key: 'films', title: 'Films' },
+    { key: 'people', title: 'People' },
+    { key: 'species', title: 'Species' },
+    { key: 'vehicles', title: 'Vehicles' },
+    { key: 'starships', title: 'Starships' },
+    { key: 'pilots', title: 'Pilots' },
+    { key: 'characters', title: 'Characters' },
+    { key: 'characters', title: 'Characters' },
+    { key: 'residents', title: 'residents' }
+  ];
 
-const Header = () => {
-  const admin = useAppStore(state => state.data.admin);
-  const isLoggedIn = admin && admin.data;
-  return (<div className="tabItems">
-    {isLoggedIn ?  <AuthorisedTabs />: ''}
-    {!isLoggedIn ? <UnAuthorisedTabs /> : ''}
-    <CommonTabs />
-  </div>);
-}
+  const filteredKeys = myMap.filter(({ key }) => resource[key] !== undefined && resource[key].length);
 
-const UnAuthorisedTabs = () => {
   return (
-    <>
-      <Link to="/login">Login</Link>
-      <Link to="/sign-up">Sign Up</Link>
-    </>
+    <div>
+      {
+        filteredKeys.map(({ title, key }) => {
+          return (<div key={key} className='otherDataItemListContainer'>
+            <Badge bg="dark">{title}</Badge>
+            <ol>
+              {
+                resource[key].map(url => <OtherDataItem key={url} url={url} />)
+              }
+            </ol>
+          </div>)
+        })
+      }
+    </div>
   )
 }
-const AuthorisedTabs = () => {
-  const navigate = useNavigate();
-  const { logMeOut } = useAppStore(state => state.actions);
-  const { logout } = useAppStore(state => state.data);
-  const { isFetching } = logout || {};
-  return (
-    <>
-      {TABS.map(({ id, text }) => <Link key={id} to={`/${id}`}>{text}</Link>)}
-      <a key="logout" disabled={isFetching} onClick={logMeOut}>Logout</a>
-    </>
-  )
+function getResourceInstanceUrl(resource, id) {
+  return `https://swapi.dev/api/${resource}/${id}/`
 }
+const ResourceInstance = () => {
+  const { resource, id } = useParams();
+  const resourcesById = useAppStore(state => state.data.resourcesById);
+  const fetchInstance = useAppStore(state => state.actions.fetchInstance);
+  const url = getResourceInstanceUrl(resource, id);
+  const currentResource = resourcesById[url];
+  const countRef = useRef(0);
 
-const CommonTabs = () => {
+  React.useEffect(() => {
+    if (countRef.current === 0) {
+      if (!currentResource) {
+        fetchInstance(url, true);
+      }
+    }
+    countRef.current++;
+  }, [currentResource]);
+
+  const { isFetching, errMsg, data } = currentResource || {};
+
   return (
-    <Link to="/about-us">About Us</Link>
+    <div>
+      {isFetching ? <h3>Fetching !!!!</h3> : null}
+      {errMsg ? <h3>{errMsg}</h3> : null}
+      {data ? (<div style={{ display: 'flex' }}>
+        <div>
+          <pre>
+            {data['name'] || data['title']}
+          </pre>
+        </div>
+        <div>
+          {<OtherDataList resource={data} />}
+        </div>
+      </div>) : null}
+    </div>
   )
 }
